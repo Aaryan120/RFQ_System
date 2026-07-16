@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Subtle grid backdrop shown behind main content */
+.bg-app {
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(circle at 15% -10%, rgb(99 102 241 / 0.08), transparent 50%),
+    radial-gradient(circle at 85% 0%, rgb(16 185 129 / 0.06), transparent 50%);
+}
+
+/* Card polish */
+.card {
+  @apply rounded-xl border border-slate-200 bg-white shadow-soft;
+}
+.card-hover {
+  @apply transition-shadow hover:shadow-card;
+}
+
+/* Table polish */
+table {
+  border-collapse: collapse;
+}
+
+/* Custom scrollbar (webkit) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.4);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184 / 0.7);
+}
+
+/* Focus ring uniformity */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgb(99 102 241);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Skeleton shimmer utility */
+.skeleton {
+  background: linear-gradient(90deg, #eef2f6 0%, #f8fafc 40%, #eef2f6 80%);
+  background-size: 1000px 100%;
+  @apply animate-shimmer;
+}

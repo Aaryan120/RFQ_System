@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUYER
+  SUPPLIER
+}
+
+enum RfqStatus {
+  SCHEDULED
+  ACTIVE
+  CLOSED
+  FORCE_CLOSED
+}
+
+enum ExtensionTrigger {
+  BID_RECEIVED
+  ANY_RANK_CHANGE
+  L1_RANK_CHANGE
+}
+
+enum ActivityEventType {
+  BID_SUBMITTED
+  TIME_EXTENDED
+  AUCTION_CLOSED
+  FORCE_CLOSED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  role         Role
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  rfqs Rfq[] @relation("BuyerRfqs")
+  bids Bid[] @relation("SupplierBids")
+}
+
+model Rfq {
+  id                String    @id @default(uuid())
+  referenceId       String    @unique
+  name              String
+  bidStartAt        DateTime
+  bidCloseAt        DateTime
+  forcedBidCloseAt  DateTime
+  pickupDate        DateTime
+  status            RfqStatus @default(SCHEDULED)
+  createdById       String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  createdBy    User            @relation("BuyerRfqs", fields: [createdById], references: [id])
+  config       AuctionConfig?
+  bids         Bid[]
+  activityLogs ActivityLog[]
+
+  @@index([status])
+  @@index([bidCloseAt])
+}
+
+model AuctionConfig {
+  id                        String           @id @default(uuid())
+  rfqId                     String           @unique
+  triggerWindowMinutes      Int
+  extensionDurationMinutes  Int
+  extensionTrigger          ExtensionTrigger
+
+  rfq Rfq @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+}
+
+model Bid {
+  id                  String   @id @default(uuid())
+  rfqId               String
+  supplierId          String
+  carrierName         String
+  freightCharges      Decimal  @db.Decimal(14, 2)
+  originCharges       Decimal  @db.Decimal(14, 2)
+  destinationCharges  Decimal  @db.Decimal(14, 2)
+  transitTimeDays     Int
+  quoteValidity       DateTime
+  totalPrice          Decimal  @db.Decimal(14, 2)
+  submittedAt         DateTime @default(now())
+
+  rfq      Rfq  @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  supplier User @relation("SupplierBids", fields: [supplierId], references: [id])
+
+  @@index([rfqId, totalPrice])
+  @@index([rfqId, submittedAt])
+}
+
+model ActivityLog {
+  id          String            @id @default(uuid())
+  rfqId       String
+  eventType   ActivityEventType
+  description String
+  metadata    Json?
+  createdAt   DateTime          @default(now())
+
+  rfq Rfq @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+
+  @@index([rfqId, createdAt])
+}

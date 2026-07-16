@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: british_auction_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: gocomet
+      POSTGRES_PASSWORD: gocomet
+      POSTGRES_DB: british_auction
+    volumes:
+      - british_auction_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gocomet -d british_auction"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  british_auction_pgdata:

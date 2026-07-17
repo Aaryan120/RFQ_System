@@ -37,7 +37,7 @@ erDiagram
 
     auction_configs {
         uuid id PK
-        uuid rfq_id FK UK
+        uuid rfq_id FK, UK
         int trigger_window_minutes "X"
         int extension_duration_minutes "Y"
         enum extension_trigger "BID_RECEIVED | ANY_RANK_CHANGE | L1_RANK_CHANGE"
